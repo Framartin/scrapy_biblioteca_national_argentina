@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'bnar.spiders'
 USER_AGENT = 'Bot scraping para Wikimedia (+https://github.com/Framartin/scrapy_biblioteca_national_argentina)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
