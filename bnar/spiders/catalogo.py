@@ -36,7 +36,8 @@ class CatalogoSpider(scrapy.Spider):
 
     def parse_item(self, response):
         table = response.xpath('//table[@id="full-table"]')
-        url_img = table.xpath("./tr/td[contains(., 'Portada')]//following-sibling::td//img/@src").get()
+        # fields
+        image_urls = table.xpath("./tr/td[contains(., 'Portada')]//following-sibling::td//img/@src").get()
         doc_number = table.xpath("./tr/td[contains(., 'No. de sistema')]//following-sibling::td/text()").get()
         #permalink = 'https://catalogo.bn.gov.ar/F/?func=direct&doc_number={doc_number}&local_base=GENER'.format(doc_number=doc_number)
         # Example : https://catalogo.bn.gov.ar/F/?func=direct&doc_number=001442521&local_base=GENER
@@ -50,9 +51,8 @@ class CatalogoSpider(scrapy.Spider):
         permalink = table.xpath("./tr/td[contains(., 'Link al registro')]//following-sibling::td/a/@href").get()
         notes_list = table.xpath("./tr/td[contains(., 'Nota')]//following-sibling::td/text()").getall()
         # generally a pdf
-        url_file = table.xpath("./tr/td[contains(., 'Doc. digitales')]//following-sibling::td/a/@href").re_first('open_window\("(.*?)"\)')
+        file_urls = table.xpath("./tr/td[contains(., 'Doc. digitales')]//following-sibling::td/a/@href").re_first('open_window\("(.*?)"\)')
         # log unsupported fields to improve metadata coverage
-        # TODO
         fields = table.xpath("./tr/td[1]/text()").getall()
         fields = [x.strip() for x in fields]
         unsupported_fields = [x for x in fields if x not in CatalogoSpider.supported_fields and x != '']

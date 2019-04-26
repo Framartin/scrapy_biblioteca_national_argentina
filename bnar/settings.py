@@ -65,6 +65,8 @@ DOWNLOAD_DELAY = 0.5
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
+    'scrapy.pipelines.images.ImagesPipeline': 1,
+    'scrapy.pipelines.images.FilesPipeline': 2,
     'bnar.pipelines.StripStrPipeline': 300,
 }
 
@@ -88,3 +90,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# File and Images pipelines
+FILES_STORE = 'files'
+IMAGES_STORE = 'images'
