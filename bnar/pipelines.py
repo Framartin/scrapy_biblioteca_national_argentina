@@ -9,3 +9,13 @@
 class BnarPipeline(object):
     def process_item(self, item, spider):
         return item
+
+class StripStrPipeline(object):
+    """
+    Strip all string fields of items
+    """
+    def process_item(self, item, spider):
+        for k, v in item.items():
+            if type(v) == str:
+                item[k] = v.strip()
+        return item
