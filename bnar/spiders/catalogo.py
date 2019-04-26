@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
+from bnar.items import BnarItem
 
 
 class CatalogoSpider(scrapy.Spider):
@@ -36,22 +37,26 @@ class CatalogoSpider(scrapy.Spider):
 
     def parse_item(self, response):
         table = response.xpath('//table[@id="full-table"]')
+        # instantiate item
+        item = BnarItem()
         # fields
-        image_urls = table.xpath("./tr/td[contains(., 'Portada')]//following-sibling::td//img/@src").get()
-        doc_number = table.xpath("./tr/td[contains(., 'No. de sistema')]//following-sibling::td/text()").get()
+        cover_url = table.xpath("./tr/td[contains(., 'Portada')]//following-sibling::td//img/@src").get()
+        cover_url = response.urljoin(cover_url)
+        item['image_urls'] = [cover_url]
+        item['doc_number'] = table.xpath("./tr/td[contains(., 'No. de sistema')]//following-sibling::td/text()").get()
         #permalink = 'https://catalogo.bn.gov.ar/F/?func=direct&doc_number={doc_number}&local_base=GENER'.format(doc_number=doc_number)
         # Example : https://catalogo.bn.gov.ar/F/?func=direct&doc_number=001442521&local_base=GENER
-        item_type = table.xpath("./tr/td[contains(., 'Formato')]//following-sibling::td/text()").get()
-        cdu = table.xpath("./tr/td[contains(., 'CDU')]//following-sibling::td/text()").get()
-        isbn = table.xpath("./tr/td[contains(., 'ISBN')]//following-sibling::td/text()").get()
-        title = table.xpath("./tr/td[contains(., 'Título')]//following-sibling::td/text()").get()
-        printer = table.xpath("./tr/td[contains(., 'Pie de imprenta')]//following-sibling::td/text()").get()
-        serie = table.xpath("./tr/td[contains(., 'Serie')]//following-sibling::td/text()").get()
-        book_type = table.xpath("./tr/td[contains(., 'Género/Forma')]//following-sibling::td/text()").get()
-        permalink = table.xpath("./tr/td[contains(., 'Link al registro')]//following-sibling::td/a/@href").get()
-        notes_list = table.xpath("./tr/td[contains(., 'Nota')]//following-sibling::td/text()").getall()
+        item['item_type'] = table.xpath("./tr/td[contains(., 'Formato')]//following-sibling::td/text()").get()
+        item['cdu'] = table.xpath("./tr/td[contains(., 'CDU')]//following-sibling::td/text()").get()
+        item['isbn'] = table.xpath("./tr/td[contains(., 'ISBN')]//following-sibling::td/text()").get()
+        item['title'] = table.xpath("./tr/td[contains(., 'Título')]//following-sibling::td/text()").get()
+        item['printer'] = table.xpath("./tr/td[contains(., 'Pie de imprenta')]//following-sibling::td/text()").get()
+        item['serie'] = table.xpath("./tr/td[contains(., 'Serie')]//following-sibling::td/text()").get()
+        item['book_type'] = table.xpath("./tr/td[contains(., 'Género/Forma')]//following-sibling::td/text()").get()
+        item['permalink'] = table.xpath("./tr/td[contains(., 'Link al registro')]//following-sibling::td/a/@href").get()
+        item['notes_list'] = table.xpath("./tr/td[contains(., 'Nota')]//following-sibling::td/text()").getall()
         # generally a pdf
-        file_urls = table.xpath("./tr/td[contains(., 'Doc. digitales')]//following-sibling::td/a/@href").re_first('open_window\("(.*?)"\)')
+        item['file_urls'] = table.xpath("./tr/td[contains(., 'Doc. digitales')]//following-sibling::td/a/@href").re('open_window\("(.*?)"\)')
         # log unsupported fields to improve metadata coverage
         fields = table.xpath("./tr/td[1]/text()").getall()
         fields = [x.strip() for x in fields]
@@ -60,4 +65,4 @@ class CatalogoSpider(scrapy.Spider):
             # unique values
             unsupported_fields = list(set(unsupported_fields))
             self.logger.info('The following fields are not supported in {0}: {1}'.format(response.url, unsupported_fields))
-        import pdb; pdb.set_trace()
+        return item
